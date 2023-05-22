@@ -23,6 +23,11 @@ const Authorize = ({ onSubmitted }) => {
     Linking.openURL(url).catch((err) => console.error('Failed opening link:', err));
   };
 
+  const handleLogout = () => {
+    setInputValue('');
+    onSubmitted(false);
+  };
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -37,6 +42,9 @@ const Authorize = ({ onSubmitted }) => {
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Open in Browser" onPress={handleOpenBrowser} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Logout" onPress={handleLogout} />
       </View>
     </View>
   );
