@@ -14,10 +14,10 @@ const EpicTab = () => {
   const fetchEpicImage = async () => {
     try {
       const response = await fetch(
-        `https://api.nasa.gov/EPIC/api/natural/images?api_key=${globalVariable}`
+        `https://api.nasa.gov/EPIC/api/natural/date/2019-05-30?api_key=${globalVariable}`
       );
       const data = await response.json();
-      setImageData(data);
+      setImageData(data[0]);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
@@ -25,15 +25,19 @@ const EpicTab = () => {
   };
 
   const goToNextImage = () => {
-    const nextImageIndex = imageData ? (imageData.indexOf(imageData) + 1) % imageData.length : 0;
+    const nextImageIndex = imageData ? (imageData.imageIndex + 1) % imageData.length : 0;
     setImageData(imageData[nextImageIndex]);
   };
 
   const goToPreviousImage = () => {
     const previousImageIndex = imageData
-      ? (imageData.indexOf(imageData) - 1 + imageData.length) % imageData.length
+      ? (imageData.imageIndex - 1 + imageData.length) % imageData.length
       : 0;
     setImageData(imageData[previousImageIndex]);
+  };
+
+  const formatDateValue = (value) => {
+    return value.toString().padStart(2, '0');
   };
 
   return (
@@ -44,7 +48,9 @@ const EpicTab = () => {
         <Image
           style={styles.image}
           source={{
-            uri: `https://api.nasa.gov/EPIC/archive/natural/${imageData.date}/png/${imageData.image}.png?api_key=FDvEV8IeA8CmptzlvKBcaktFSknbvrydfJBc36AY`,
+            uri: `https://api.nasa.gov/EPIC/archive/natural/${new Date(imageData.date).getFullYear()}/${formatDateValue(
+              new Date(imageData.date).getMonth() + 1
+            )}/${formatDateValue(new Date(imageData.date).getDate())}/png/${imageData.image}.png?api_key=FDvEV8IeA8CmptzlvKBcaktFSknbvrydfJBc36AY`,
           }}
         />
       ) : (
