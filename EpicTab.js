@@ -1,0 +1,120 @@
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { GlobalContext } from './GlobalContext';
+
+const EpicTab = () => {
+  const [imageData, setImageData] = useState(null);
+  const { globalVariable, setGlobalVariable } = useContext(GlobalContext);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEpicImage();
+  }, []);
+
+  const fetchEpicImage = async () => {
+    try {
+      const response = await fetch(
+        `https://api.nasa.gov/EPIC/api/natural/images?api_key=${globalVariable}`
+      );
+      const data = await response.json();
+      setImageData(data);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const goToNextImage = () => {
+    const nextImageIndex = imageData ? (imageData.indexOf(imageData) + 1) % imageData.length : 0;
+    setImageData(imageData[nextImageIndex]);
+  };
+
+  const goToPreviousImage = () => {
+    const previousImageIndex = imageData
+      ? (imageData.indexOf(imageData) - 1 + imageData.length) % imageData.length
+      : 0;
+    setImageData(imageData[previousImageIndex]);
+  };
+
+  return (
+    <View style={styles.container}>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />
+      ) : imageData ? (
+        <Image
+          style={styles.image}
+          source={{
+            uri: `https://api.nasa.gov/EPIC/archive/natural/${imageData.date}/png/${imageData.image}.png?api_key=FDvEV8IeA8CmptzlvKBcaktFSknbvrydfJBc36AY`,
+          }}
+        />
+      ) : (
+        <Text style={styles.error}>Failed to load image</Text>
+      )}
+      <Text style={styles.title}>EPIC Image</Text>
+      <Text style={styles.date}>
+        {imageData && new Date(imageData.date).toLocaleDateString()}
+      </Text>
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity style={styles.button} onPress={goToPreviousImage} activeOpacity={0.7}>
+          <Text style={styles.buttonText}>Previous</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={goToNextImage} activeOpacity={0.7}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  date: {
+    fontSize: 16,
+    marginTop: 10,
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    resizeMode: 'cover',
+  },
+  loading: {
+    marginTop: 20,
+  },
+  error: {
+    fontSize: 18,
+    fontStyle: 'italic',
+    marginTop: 20,
+    color: 'red',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  button: {
+    backgroundColor: 'black',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+
+export default EpicTab;
